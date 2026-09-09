@@ -1,11 +1,12 @@
 import pygame
 import config
+import random
 
 pygame.init()
 
 # MAP
-import wall
-import map
+import entities.wall as wall
+import world.map as map
 
 points = [
     (100, 100),
@@ -29,18 +30,25 @@ screen = pygame.display.set_mode(
 pygame.display.set_caption(config.WINDOW_TITLE)
 
 # SOUNDS
-collision_sounds = [
-    pygame.mixer.Sound(sound) for sound in config.COLLISION_SOUNDS
-]
+# collision_sounds = [
+#     pygame.mixer.Sound(sound) for sound in config.COLLISION_SOUNDS
+# ]
 
-[sound.set_volume(config.SOUNDS_VOLUME) for sound in collision_sounds]
+# [sound.set_volume(config.SOUNDS_VOLUME) for sound in collision_sounds]
 
-# OBJECTS
-from ball import Ball
-from ball_manager import BallManager
+# ENTITIES
+from entities.ball import Ball
+from managers.entity_manager import EntityManager
 
-ball_manager = BallManager()
+entity_manager = EntityManager()
 
+# ENGINE
+from engine import Engine
+
+width, height = pygame.display.get_window_size()
+engine = Engine(width, height, map_1)
+
+# MAIN LOOP
 running = True
 clock = pygame.time.Clock()
 
@@ -53,32 +61,27 @@ while running:
             running = False
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            # ADD BALL TO MANAGER
+            # ADD TO MANAGER
             x, y = event.pos
             ball = Ball(
+                config.BALL_GRAVITY,
+                config.BALL_RESTITURATION,
                 x,
-                y, 
-                config.BALL_RADIUS, 
-                config.BALL_COLORS,
-                collision_sounds, 
-                config.COLLISION_EFFECT_DURATION, 
-                config.BALL_RESTITURATION, 
-                config.BALL_GRAVITY, 
-                config.TRAIL_SIZE
+                y,
+                config.BALL_RADIUS,
+                random.choice(config.BALL_COLORS)
             )
-            ball_manager.add(ball)
-
-    dt = clock.tick(60) / 1000
+            entity_manager.add(ball)
 
     # UPDATE
-    width, height = pygame.display.get_window_size()
-    ball_manager.update(width, height, map_1, dt)
+    dt = clock.tick(60) / 1000
+    entity_manager.update(dt)
+    engine.process_collisions(entity_manager.entities)
  
     # RENDERING
-    ball_manager.play_sound()
     screen.fill((0, 0, 0))
     map_1.draw(screen)
-    ball_manager.draw(screen)
+    entity_manager.draw(screen)
     pygame.display.flip()
 
 pygame.quit()
