@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from entities.ball import Ball
     from world.map import Map
-    from entities.entity import Entity
+    from managers.entity_manager import EntityManager
 
 def check_ball_segment_collision(start, end, thickness, ball: "Ball"):
 
@@ -133,19 +133,29 @@ def resolve_ball_ball_collision(ball_a: "Ball", ball_b: "Ball"):
         ball_b.position += correction
 
 class Engine:
-    def __init__(self, width, height, map: "Map"):
+    def __init__(self, width, height, map: "Map", surface, entity_manager: "EntityManager"):
         self.window = (width, height)
         self.map = map
+        self.surface = surface
+        self.entity_manager = entity_manager
 
-    def process_window_collision(self, entities: list["Entity"]):
+    def process_window_collisions(self):
+        entities = self.entity_manager.entities
+        window = self.window
+
         for entity in entities:
-            entity.process_window_collision(self.window)
+            entity.process_window_collision(window)
 
-    def process_map_collision(self, entities: list["Entity"]):
+    def process_map_collisions(self):
+        entities = self.entity_manager.entities
+        map = self.map
+
         for entity in entities:
-            entity.process_map_collision(self.map)
+            entity.process_map_collision(map)
 
-    def process_entity_collision(self, entities: list["Entity"]):
+    def process_entities_collisions(self):
+        entities = self.entity_manager.entities
+
         for i in range(len(entities)):
             for j in range(i + 1, len(entities)):
                 entity_a = entities[i]
@@ -153,7 +163,30 @@ class Engine:
 
                 entity_a.process_entity_collision(entity_b)
 
-    def process_collisions(self, entities: list["Entity"]):
-        self.process_window_collision(entities)
-        self.process_map_collision(entities)
-        self.process_entity_collision(entities)
+    def process_collisions(self):
+        self.process_window_collisions()
+        self.process_map_collisions()
+        self.process_entities_collisions()
+
+    def update(self, dt):
+        entity_manager = self.entity_manager
+
+        entity_manager.update(dt)
+        self.process_collisions()
+
+    def draw_entities_effects(self):
+        entities = self.entity_manager.entities
+        surface = self.surface
+
+        for entity in entities:
+            entity.draw_effects(surface)
+
+    def render(self):
+        surface = self.surface
+        map = self.map
+        entity_manager = self.entity_manager
+
+        surface.fill((0, 0, 0))
+        map.draw(surface)
+        entity_manager.draw(surface)
+        self.draw_entities_effects()

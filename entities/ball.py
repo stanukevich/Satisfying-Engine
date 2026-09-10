@@ -8,6 +8,11 @@ from engine import (
     resolve_ball_ball_collision,
 )
 
+from entities.modifiers import (
+    get_scaled_size,
+    get_transparent_color
+)
+
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -26,6 +31,18 @@ class Ball(Entity):
         super().update(dt)
     
         self.position += self.velocity * dt
+
+    def resize(self, scale):
+        super().resize(scale)
+
+        current_size = self.radius
+        self.radius = get_scaled_size(current_size, scale)
+
+    def transparency(self, factor):
+        super().transparency(factor)
+
+        current_color = self.color
+        self.color = get_transparent_color(current_color, factor)
 
     def draw(self, surface):
         super().draw(surface)
@@ -69,6 +86,27 @@ class Ball(Entity):
         if isinstance(entity, Ball):
             if check_ball_ball_collision(self, entity):
                 resolve_ball_ball_collision(self, entity) 
+
+    def get_position(self):
+        super().get_position()
+
+        return self.position
+
+    def draw_transformed(self, surface, factor, point):
+        x = int(point.x)
+        y = int(point.y)
+        current_radius = self.radius
+        current_color = self.color
+        new_radius = get_scaled_size(current_radius, factor)
+        new_color = get_transparent_color(current_color, factor)
+
+        pygame.gfxdraw.filled_circle(
+            surface,
+            int(x),
+            int(y),
+            new_radius,
+            new_color
+        )
 
     # def __init__(self, x, y, radius, ball_colors, collision_sounds, collision_effect_duration, restitution, gravity, trail_size):
     #     self.position = pygame.Vector2(x, y)

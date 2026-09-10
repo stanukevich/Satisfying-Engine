@@ -42,11 +42,15 @@ from managers.entity_manager import EntityManager
 
 entity_manager = EntityManager()
 
+# EFFECTS
+from effects.trail_effect import TrailEffect
+trail_effect = TrailEffect(config.TRAIL_SIZE)
+
 # ENGINE
 from engine import Engine
 
 width, height = pygame.display.get_window_size()
-engine = Engine(width, height, map_1)
+engine = Engine(width, height, map_1, screen, entity_manager)
 
 # MAIN LOOP
 running = True
@@ -71,17 +75,12 @@ while running:
                 config.BALL_RADIUS,
                 random.choice(config.BALL_COLORS)
             )
+            ball.add_effect(trail_effect)
             entity_manager.add(ball)
 
-    # UPDATE
     dt = clock.tick(60) / 1000
-    entity_manager.update(dt)
-    engine.process_collisions(entity_manager.entities)
- 
-    # RENDERING
-    screen.fill((0, 0, 0))
-    map_1.draw(screen)
-    entity_manager.draw(screen)
+    engine.update(dt)
+    engine.render()
     pygame.display.flip()
 
 pygame.quit()

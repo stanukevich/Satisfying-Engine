@@ -1,8 +1,13 @@
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from entities.entity import Entity
+
 class EntityManager:
     def __init__(self):
         self.entities = []
 
-    def add(self, entity):
+    def add(self, entity: "Entity"):
         self.entities.append(entity)
 
     def update(self, dt):
