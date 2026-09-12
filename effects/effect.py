@@ -8,6 +8,9 @@ if TYPE_CHECKING:
 class Effect:
     def __init__(self, size):
         self.size = size
+
+    def update(self, dt, entity: "Entity"):
+        pass
         
     def draw(self, surface, entity: "Entity"):
         pass

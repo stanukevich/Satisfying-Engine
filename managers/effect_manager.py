@@ -18,6 +18,11 @@ class EffectManager(Manager):
 
         self.effects[entity].append(effect)
 
+    def update(self, dt):
+        for entity, effects in self.effects.items():
+            for effect in effects:
+                effect.update(dt, entity)
+
     def draw(self, surface):
         for entity, effects in self.effects.items():
             for effect in effects:

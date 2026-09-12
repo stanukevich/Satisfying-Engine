@@ -10,6 +10,7 @@ from world.map import Map
 from entities.ball import Ball
 from entities.wall import Wall
 from effects.trail_effect import TrailEffect
+from effects.gradient_effect import GradientEffect
 
 # CREATE MAP
 points = [
@@ -59,6 +60,8 @@ while running:
         if event.type == pygame.MOUSEBUTTONDOWN:
             # Create trail effect
             trail_effect = TrailEffect(config.TRAIL_SIZE)
+            # Create gradient effect
+            gradient_effect = GradientEffect(config.GRADIENT_SMOOTHNESS, config.BALL_COLORS)
 
             # Create ball
             x, y = event.pos
@@ -74,6 +77,7 @@ while running:
             # Add to managers
             entity_manager.add(ball)
             effect_manager.add(ball, trail_effect)
+            effect_manager.add(ball, gradient_effect)
 
     dt = clock.tick(60) / 1000
     engine.update(dt)

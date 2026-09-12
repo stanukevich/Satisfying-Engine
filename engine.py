@@ -24,6 +24,7 @@ class Engine:
 
     def update(self, dt):
         self.entity_manager.update(dt)
+        self.effect_manager.update(dt)
 
         entities = self.entity_manager.entities
 

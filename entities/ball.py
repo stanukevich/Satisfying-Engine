@@ -79,7 +79,7 @@ class Ball(Entity):
             self.color
         )     
 
-    def draw_transformed(self, surface, factor, point):
+    def draw_transformed(self, surface, point, factor = 1):
         x = int(point.x)
         y = int(point.y)
         current_radius = self.radius
@@ -97,3 +97,9 @@ class Ball(Entity):
 
     def get_position(self):
         return self.position
+
+    def get_color(self):
+        return self.color
+
+    def set_color(self, new_color):
+        self.color = new_color

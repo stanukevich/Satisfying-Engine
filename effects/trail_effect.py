@@ -26,4 +26,4 @@ class TrailEffect(Effect):
 
         for i, point in enumerate(self.points):
             factor = (i + 1) / len(self.points)
-            entity.draw_transformed(surface, factor, point)
+            entity.draw_transformed(surface, point, factor)
