@@ -1,9 +1,13 @@
 from typing import TYPE_CHECKING
 
+from managers.manager import Manager
+
+
 if TYPE_CHECKING:
     from entities.entity import Entity
 
-class EntityManager:
+
+class EntityManager(Manager):
     def __init__(self):
         self.entities = []
 

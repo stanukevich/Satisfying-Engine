@@ -1,13 +1,17 @@
-import pygame
-import config
 import random
 
-pygame.init()
+import pygame
 
-# MAP
-import entities.wall as wall
-import world.map as map
+import config
+from engine import Engine
+from managers.entity_manager import EntityManager
+from managers.effect_manager import EffectManager
+from world.map import Map
+from entities.ball import Ball
+from entities.wall import Wall
+from effects.trail_effect import TrailEffect
 
+# CREATE MAP
 points = [
     (100, 100),
     (100, 400),
@@ -15,9 +19,16 @@ points = [
     (700, 720)
 ]
 
-wall_1 = wall.Wall(points, config.WALL_THICKNESS, config.WALL_COLOR)
-map_1 = map.Map()
+wall_1 = Wall(points, config.WALL_THICKNESS, config.WALL_COLOR)
+map_1 = Map()
 map_1.add(wall_1)
+
+# MANAGERS
+entity_manager = EntityManager()
+effect_manager = EffectManager()
+
+# INITIALIZATION
+pygame.init()
 
 # SET WINDOW ICON
 icon = pygame.image.load(config.WINDOW_ICON)
@@ -29,32 +40,13 @@ screen = pygame.display.set_mode(
 )
 pygame.display.set_caption(config.WINDOW_TITLE)
 
-# SOUNDS
-# collision_sounds = [
-#     pygame.mixer.Sound(sound) for sound in config.COLLISION_SOUNDS
-# ]
-
-# [sound.set_volume(config.SOUNDS_VOLUME) for sound in collision_sounds]
-
-# ENTITIES
-from entities.ball import Ball
-from managers.entity_manager import EntityManager
-
-entity_manager = EntityManager()
-
-# EFFECTS
-from effects.trail_effect import TrailEffect
-trail_effect = TrailEffect(config.TRAIL_SIZE)
-
 # ENGINE
-from engine import Engine
-
 width, height = pygame.display.get_window_size()
-engine = Engine(width, height, map_1, screen, entity_manager)
+engine = Engine(width, height, map_1, screen, entity_manager, effect_manager)
 
 # MAIN LOOP
 running = True
-clock = pygame.time.Clock()
+clock = pygame.time.Clock() 
 
 while running:
 
@@ -65,7 +57,10 @@ while running:
             running = False
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            # ADD TO MANAGER
+            # Create trail effect
+            trail_effect = TrailEffect(config.TRAIL_SIZE)
+
+            # Create ball
             x, y = event.pos
             ball = Ball(
                 config.BALL_GRAVITY,
@@ -75,8 +70,10 @@ while running:
                 config.BALL_RADIUS,
                 random.choice(config.BALL_COLORS)
             )
-            ball.add_effect(trail_effect)
+
+            # Add to managers
             entity_manager.add(ball)
+            effect_manager.add(ball, trail_effect)
 
     dt = clock.tick(60) / 1000
     engine.update(dt)

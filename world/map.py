@@ -1,9 +1,11 @@
+from typing import TYPE_CHECKING
+
 from managers.entity_manager import EntityManager
 
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from entities.ball import Ball
+
 
 class Map(EntityManager):
     def process_ball_collision(self, ball: "Ball"):

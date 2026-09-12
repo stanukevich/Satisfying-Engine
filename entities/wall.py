@@ -1,14 +1,17 @@
+from typing import TYPE_CHECKING
+
 from pygame import draw, Vector2
+
 from entities.entity import Entity
-from engine import (
+from entities.collisions import (
     check_ball_segment_collision, 
     resolve_ball_segment_collision
 )
 
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from entities.ball import Ball
+
 
 class Wall(Entity):
     def __init__(self, points, thickness, color):

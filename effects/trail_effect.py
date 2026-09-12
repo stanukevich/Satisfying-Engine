@@ -1,9 +1,11 @@
+from typing import TYPE_CHECKING
+
 from effects.effect import Effect
 
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from entities.entity import Entity
+
 
 class TrailEffect(Effect):
     def __init__(self, size):
@@ -18,8 +20,6 @@ class TrailEffect(Effect):
         self.points.pop(0)
 
     def draw(self, surface, entity: "Entity"):
-        super().draw(surface, entity)
-
         self.add_points(entity)
         if len(self.points) > self.size:
             self.pop_points()
