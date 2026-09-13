@@ -27,3 +27,9 @@ class EffectManager(Manager):
         for entity, effects in self.effects.items():
             for effect in effects:
                 effect.draw(surface, entity)
+
+    def get_entities(self):
+        return self.effects
+
+    def clear(self):
+        self.effects.clear()

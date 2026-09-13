@@ -4,8 +4,7 @@ import pygame
 
 import config
 from engine import Engine
-from managers.entity_manager import EntityManager
-from managers.effect_manager import EffectManager
+
 from world.map import Map
 from entities.ball import Ball
 from entities.wall import Wall
@@ -24,10 +23,6 @@ wall_1 = Wall(points, config.WALL_THICKNESS, config.WALL_COLOR)
 map_1 = Map()
 map_1.add(wall_1)
 
-# MANAGERS
-entity_manager = EntityManager()
-effect_manager = EffectManager()
-
 # INITIALIZATION
 pygame.init()
 
@@ -43,7 +38,9 @@ pygame.display.set_caption(config.WINDOW_TITLE)
 
 # ENGINE
 width, height = pygame.display.get_window_size()
-engine = Engine(width, height, map_1, screen, entity_manager, effect_manager)
+engine = Engine(width, height, map_1, screen)
+entity_manager = engine.entity_manager
+effect_manager = engine.effect_manager
 
 # MAIN LOOP
 running = True
@@ -58,10 +55,12 @@ while running:
             running = False
 
         if event.type == pygame.MOUSEBUTTONDOWN:
+            color = random.choice(config.BALL_COLORS)
+            
             # Create trail effect
             trail_effect = TrailEffect(config.TRAIL_SIZE)
             # Create gradient effect
-            gradient_effect = GradientEffect(config.GRADIENT_SMOOTHNESS, config.BALL_COLORS)
+            gradient_effect = GradientEffect(config.GRADIENT_SMOOTHNESS, config.BALL_COLORS, color)
 
             # Create ball
             x, y = event.pos
@@ -71,7 +70,7 @@ while running:
                 x,
                 y,
                 config.BALL_RADIUS,
-                random.choice(config.BALL_COLORS)
+                color
             )
 
             # Add to managers
@@ -79,7 +78,7 @@ while running:
             effect_manager.add(ball, trail_effect)
             effect_manager.add(ball, gradient_effect)
 
-    dt = clock.tick(60) / 1000
+    dt = clock.tick(config.FPS) / 1000
     engine.update(dt)
     engine.render()
     pygame.display.flip()

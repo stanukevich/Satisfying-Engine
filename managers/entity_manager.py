@@ -21,3 +21,9 @@ class EntityManager(Manager):
     def draw(self, surface):
         for entity in self.entities:
             entity.draw(surface)
+
+    def get_entities(self):
+        return self.entities
+
+    def clear(self):
+        self.entities.clear()

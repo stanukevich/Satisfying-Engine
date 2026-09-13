@@ -5,20 +5,23 @@ import pygame.gfxdraw
 
 from entities.entity import Entity
 from entities.collisions import (
+    CollisionType,
     check_ball_window_collision,
     resolve_ball_window_collision,
     check_ball_ball_collision,
-    resolve_ball_ball_collision,
+    resolve_ball_ball_collision
 )
 from entities.modifiers import (
     get_scaled_size,
     get_transparent_color
 )
+from events.collision_event import CollisionEvent
 
 
 if TYPE_CHECKING:
     from world.map import Map
     from entities.ball import Ball
+    from events.event import Event
 
 
 class Ball(Entity):
@@ -42,21 +45,35 @@ class Ball(Entity):
         current_color = self.color
         self.color = get_transparent_color(current_color, factor)
 
-    def process_window_collision(self, window):
-        super().process_window_collision(window)
-
+    def process_window_collision(self, window, events: list["Event"]):
         width, height = window
 
         if check_ball_window_collision(width, height, self):
             resolve_ball_window_collision(width, height, self)
 
-    def process_map_collision(self, game_map: "Map"):
-        game_map.process_ball_collision(self)
+            events.append(
+                CollisionEvent(
+                    CollisionType.ENTITY_WINDOW,
+                    self,
+                    None
+                )
+            )
 
-    def process_entity_collision(self, entity):
+    def process_map_collision(self, game_map: "Map", events: list["Event"]):
+        game_map.process_ball_collision(self, events)
+
+    def process_entity_collision(self, entity, events: list["Event"]):
         if isinstance(entity, Ball):
             if check_ball_ball_collision(self, entity):
                 resolve_ball_ball_collision(self, entity)
+
+                events.append(
+                    CollisionEvent(
+                        CollisionType.ENTITY_ENTITY,
+                        self,
+                        entity
+                    )
+                )
 
     def draw(self, surface):
         x = int(self.position.x)

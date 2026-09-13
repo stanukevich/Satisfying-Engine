@@ -5,6 +5,7 @@ from pygame import Vector2
 
 if TYPE_CHECKING:
     from world.map import Map
+    from events.event import Event
 
 
 class Entity:
@@ -22,13 +23,13 @@ class Entity:
     def transparency(self, factor):
         pass
 
-    def process_window_collision(self, window):
+    def process_window_collision(self, window, events: list["Event"]):
         pass
 
-    def process_map_collision(self, game_map: "Map"):
+    def process_map_collision(self, game_map: "Map", events: list["Event"]):
         pass
 
-    def process_entity_collision(self, entity: "Entity"):
+    def process_entity_collision(self, entity: "Entity", events: list["Event"]):
         pass
 
     def draw(self, surface):

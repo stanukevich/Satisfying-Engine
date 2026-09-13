@@ -9,10 +9,10 @@ if TYPE_CHECKING:
 
 
 class GradientEffect(Effect):
-    def __init__(self, smoothness, colors):
+    def __init__(self, smoothness, colors, current_color):
         self.smoothness = smoothness
         self.colors = colors
-        self.current_index = 0
+        self.current_index = colors.index(current_color)
         self.progress = 0
 
     def update(self, dt, entity: "Entity"):

@@ -1,10 +1,17 @@
 from typing import TYPE_CHECKING
-
+from enum import Enum
 
 if TYPE_CHECKING:
     from entities.ball import Ball
     from world.map import Map
     from entities.entity import Entity
+    from events.event import Event
+
+
+class CollisionType(Enum):
+    ENTITY_WALL = "entity_wall"
+    ENTITY_WINDOW = "entity_window"
+    ENTITY_ENTITY = "entity_entity"
 
 
 # COLLISIONS BETWEEN MAP & ENTITIES
@@ -65,9 +72,9 @@ def resolve_ball_segment_collision(start, end, thickness, ball: "Ball"):
             1 + ball.restitution
         ) * velocity_normal * normal
 
-def process_map_collisions(map: "Map", entities: list["Entity"]):
+def process_map_collisions(map: "Map", entities: list["Entity"], events: list["Event"]):
     for entity in entities:
-        entity.process_map_collision(map)
+        entity.process_map_collision(map, events)
 
 # COLLISIONS BETWEEN WINDOW & ENTITIES
 
@@ -104,9 +111,9 @@ def resolve_ball_window_collision(width, height, ball: "Ball"):
         position.y = height - radius
         velocity.y *= -1 * restitution
 
-def process_window_collisions(window, entities: list["Entity"]):
+def process_window_collisions(window, entities: list["Entity"], events: list["Event"]):
     for entity in entities:
-        entity.process_window_collision(window)
+        entity.process_window_collision(window, events)
 
 # COLLISIONS BETWEEN ENTITIES & ENTITIES
 
@@ -148,10 +155,10 @@ def resolve_ball_ball_collision(ball_a: "Ball", ball_b: "Ball"):
         ball_a.position -= correction
         ball_b.position += correction
 
-def process_entities_collisions(entities: list["Entity"]):
+def process_entities_collisions(entities: list["Entity"], events: list["Event"]):
     for i in range(len(entities)):
         for j in range(i + 1, len(entities)):
             entity_a = entities[i]
             entity_b = entities[j]
 
-            entity_a.process_entity_collision(entity_b)
+            entity_a.process_entity_collision(entity_b, events)

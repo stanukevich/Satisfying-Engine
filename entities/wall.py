@@ -4,13 +4,15 @@ from pygame import draw, Vector2
 
 from entities.entity import Entity
 from entities.collisions import (
+    CollisionType,
     check_ball_segment_collision, 
     resolve_ball_segment_collision
 )
-
+from events.collision_event import CollisionEvent
 
 if TYPE_CHECKING:
     from entities.ball import Ball
+    from events.event import Event
 
 
 class Wall(Entity):
@@ -33,7 +35,7 @@ class Wall(Entity):
                 end
             )
 
-    def process_ball_collision(self, ball: "Ball"):
+    def process_ball_collision(self, ball: "Ball", events: list["Event"]):
         points = self.points
         thickness = self.thickness
 
@@ -42,3 +44,11 @@ class Wall(Entity):
             end = points[i + 1]
             if(check_ball_segment_collision(start, end, thickness, ball)):
                 resolve_ball_segment_collision(start, end, thickness, ball)
+
+                events.append(
+                    CollisionEvent(
+                        CollisionType.ENTITY_WALL,
+                        self,
+                        ball
+                    )
+                )
