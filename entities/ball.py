@@ -49,15 +49,17 @@ class Ball(Entity):
         width, height = window
 
         if check_ball_window_collision(width, height, self):
-            resolve_ball_window_collision(width, height, self)
+            impact = resolve_ball_window_collision(width, height, self)
 
-            events.append(
-                CollisionEvent(
-                    CollisionType.ENTITY_WINDOW,
-                    self,
-                    None
+            if self.velocity.y != 0:
+                events.append(
+                    CollisionEvent(
+                        CollisionType.ENTITY_WINDOW,
+                        self,
+                        None,
+                        impact
+                    )
                 )
-            )
 
     def process_map_collision(self, game_map: "Map", events: list["Event"]):
         game_map.process_ball_collision(self, events)
@@ -65,13 +67,14 @@ class Ball(Entity):
     def process_entity_collision(self, entity, events: list["Event"]):
         if isinstance(entity, Ball):
             if check_ball_ball_collision(self, entity):
-                resolve_ball_ball_collision(self, entity)
+                impact = resolve_ball_ball_collision(self, entity)
 
                 events.append(
                     CollisionEvent(
                         CollisionType.ENTITY_ENTITY,
                         self,
-                        entity
+                        entity,
+                        impact
                     )
                 )
 

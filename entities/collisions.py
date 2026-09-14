@@ -1,6 +1,10 @@
 from typing import TYPE_CHECKING
 from enum import Enum
 
+from pygame import Vector2
+
+from config import STOP_THRESHOLD
+
 if TYPE_CHECKING:
     from entities.ball import Ball
     from world.map import Map
@@ -41,7 +45,7 @@ def resolve_ball_segment_collision(start, end, thickness, ball: "Ball"):
     segment = end - start
 
     if segment.length_squared() == 0:
-        return
+        return 0
 
     to_ball = ball.position - start
 
@@ -54,7 +58,7 @@ def resolve_ball_segment_collision(start, end, thickness, ball: "Ball"):
     distance = delta.length()
 
     if distance == 0:
-        return
+        return 0
 
     normal = delta.normalize()
 
@@ -72,6 +76,10 @@ def resolve_ball_segment_collision(start, end, thickness, ball: "Ball"):
             1 + ball.restitution
         ) * velocity_normal * normal
 
+    impact = abs(velocity_normal)
+
+    return impact
+
 def process_map_collisions(map: "Map", entities: list["Entity"], events: list["Event"]):
     for entity in entities:
         entity.process_map_collision(map, events)
@@ -81,12 +89,16 @@ def process_map_collisions(map: "Map", entities: list["Entity"], events: list["E
 def check_ball_window_collision(width, height, ball: "Ball"):
     position = ball.position
     radius = ball.radius
+    velocity = ball.velocity
 
     return (
-        position.x - radius <= 0
-        or position.x + radius >= width
-        or position.y - radius <= 0
-        or position.y + radius >= height
+        (position.x - radius <= 0 and velocity.x < 0)
+        or
+        (position.x + radius >= width and velocity.x > 0)
+        or
+        (position.y - radius <= 0 and velocity.y < 0)
+        or
+        (position.y + radius >= height and velocity.y > 0)
     )
 
 def resolve_ball_window_collision(width, height, ball: "Ball"):
@@ -95,21 +107,48 @@ def resolve_ball_window_collision(width, height, ball: "Ball"):
     velocity = ball.velocity
     restitution = ball.restitution
 
+    normal = Vector2(0, 0)
+
     if position.x - radius <= 0:
         position.x = radius
-        velocity.x *= -1 * restitution
+        normal += Vector2(1, 0)
 
     if position.x + radius >= width:
         position.x = width - radius
-        velocity.x *= -1 * restitution
+        normal += Vector2(-1, 0)
 
     if position.y - radius <= 0:
         position.y = radius
-        velocity.y *= -1 * restitution
+        normal += Vector2(0, 1)
 
     if position.y + radius >= height:
         position.y = height - radius
-        velocity.y *= -1 * restitution
+        normal += Vector2(0, -1)
+
+    if normal.length_squared() == 0:
+        return 0
+
+    normal.normalize_ip()
+
+    velocity_normal = velocity.dot(normal)
+
+    if velocity_normal >= 0:
+        return 0
+
+    impact = abs(velocity_normal)
+
+    if impact < STOP_THRESHOLD:
+        velocity -= velocity_normal * normal
+        # if position.y + radius >= height:
+        #     position.y = height - radius
+        #     velocity.y = 0
+        return impact
+
+    velocity -= (
+        1 + restitution
+    ) * velocity_normal * normal
+
+    return impact
 
 def process_window_collisions(window, entities: list["Entity"], events: list["Event"]):
     for entity in entities:
@@ -127,7 +166,7 @@ def resolve_ball_ball_collision(ball_a: "Ball", ball_b: "Ball"):
     distance = direction.length()
 
     if distance == 0:
-        return
+        return 0
 
     normal = direction.normalize()
 
@@ -136,7 +175,7 @@ def resolve_ball_ball_collision(ball_a: "Ball", ball_b: "Ball"):
     velocity_along_normal = relative_velocity.dot(normal)
 
     if velocity_along_normal >= 0:
-        return
+        return 0
 
     impulse = -velocity_along_normal
 
@@ -154,6 +193,10 @@ def resolve_ball_ball_collision(ball_a: "Ball", ball_b: "Ball"):
 
         ball_a.position -= correction
         ball_b.position += correction
+
+    impact = abs(velocity_along_normal)
+
+    return impact
 
 def process_entities_collisions(entities: list["Entity"], events: list["Event"]):
     for i in range(len(entities)):

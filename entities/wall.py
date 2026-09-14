@@ -43,12 +43,13 @@ class Wall(Entity):
             start = points[i]
             end = points[i + 1]
             if(check_ball_segment_collision(start, end, thickness, ball)):
-                resolve_ball_segment_collision(start, end, thickness, ball)
+                impact = resolve_ball_segment_collision(start, end, thickness, ball)
 
                 events.append(
                     CollisionEvent(
                         CollisionType.ENTITY_WALL,
                         self,
-                        ball
+                        ball,
+                        impact
                     )
                 )

@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from managers.entity_manager import EntityManager
 from managers.event_manager import EventManager
 from managers.effect_manager import EffectManager
+from managers.sound_manager import SoundManager
 from entities.collisions import (
     process_window_collisions,
     process_map_collisions,
@@ -23,6 +24,7 @@ class Engine:
         self.entity_manager = EntityManager()
         self.event_manager = EventManager()
         self.effect_manager = EffectManager()
+        self.sound_manager = SoundManager()
 
     def update(self, dt):
         self.entity_manager.update(dt)
@@ -35,7 +37,7 @@ class Engine:
         process_map_collisions(self.map, entities, events)
         process_entities_collisions(entities, events)
 
-        # TODO: SOUND_MANAGER.PROCESS(events)
+        self.sound_manager.process(events)
 
         self.event_manager.clear()
 
@@ -48,4 +50,4 @@ class Engine:
         self.entity_manager.draw(surface)
         self.effect_manager.draw(surface)
 
-        # TODO: SOUND_MANAGER.PLAY()
+        self.sound_manager.play()
